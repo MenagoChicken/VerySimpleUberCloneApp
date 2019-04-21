@@ -54,7 +54,7 @@ public class StarterApplication extends Application {
 //            }
 //        });
 
-        ParseUser.enableAutomaticUser();
+//        ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         defaultACL.setPublicReadAccess(true);
         defaultACL.setPublicWriteAccess(true);
