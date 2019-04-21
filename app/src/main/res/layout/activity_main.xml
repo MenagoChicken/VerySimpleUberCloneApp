@@ -27,19 +27,21 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="UBER"
+        android:textColor="@android:color/black"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logoImageView" />
 
     <Switch
-        android:id="@+id/driverOrPassengerSwitch"
+        android:id="@+id/whoSwitch"
         style="@style/Base.Widget.AppCompat.CompoundButton.Switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
+        android:onClick="switchTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appName" />
@@ -51,8 +53,9 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
         android:text="Passenger"
+        android:textColor="@android:color/black"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/driverOrPassengerSwitch"
+        app:layout_constraintStart_toEndOf="@+id/whoSwitch"
         app:layout_constraintTop_toBottomOf="@+id/appName" />
 
     <TextView
@@ -62,8 +65,9 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="24dp"
         android:text="Driver"
+        android:textColor="@android:color/black"
         android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@+id/driverOrPassengerSwitch"
+        app:layout_constraintEnd_toStartOf="@+id/whoSwitch"
         app:layout_constraintTop_toBottomOf="@+id/appName" />
 
     <Button
@@ -73,8 +77,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="70dp"
         android:layout_marginEnd="8dp"
+        android:onClick="goToSelectedActivity"
         android:text="GO!"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/driverOrPassengerSwitch" />
+        app:layout_constraintTop_toBottomOf="@+id/whoSwitch" />
 </androidx.constraintlayout.widget.ConstraintLayout>

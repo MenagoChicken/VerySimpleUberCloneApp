@@ -40,19 +40,19 @@ public class StarterApplication extends Application {
                 .build()
         );
 
-        ParseObject object = new ParseObject("TEst");
-        object.put("myNumber", "12344");
-
-        object.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException ex) {
-                if (ex == null) {
-                    Log.i("Parse Result", "Successful!");
-                } else {
-                    Log.i("Parse Result", "Failed " + ex.toString());
-                }
-            }
-        });
+//        ParseObject object = new ParseObject("TEst");
+//        object.put("myNumber", "12344");
+//
+//        object.saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException ex) {
+//                if (ex == null) {
+//                    Log.i("Parse Result", "Successful!");
+//                } else {
+//                    Log.i("Parse Result", "Failed " + ex.toString());
+//                }
+//            }
+//        });
 
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
