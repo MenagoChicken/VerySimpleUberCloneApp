@@ -1,5 +1,6 @@
 package pl.menagochicken.ubercloneapp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
             ParseUser.getCurrentUser().put("passengerOrDriver", userType);
             Log.i("Switch value", userType + " " + String.valueOf(whoSwitch.isChecked()));
         }
+
+        redirectActivity();
     }
 
     public void switchTextColor(View view) {
@@ -44,6 +47,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             driverTextView.setTextColor(Color.BLUE);
             passengerTextView.setTextColor(Color.BLACK);
+        }
+    }
+
+    public void redirectActivity(){
+        if (ParseUser.getCurrentUser().get("passengerOrDriver")=="passenger"){
+            Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(getApplicationContext(),DriverActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -75,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+        } else {
+            if(ParseUser.getCurrentUser().get("passengerOrDriver") != null){
+                Log.i("Info", "Redirecting as " + ParseUser.getCurrentUser().get("passengerOrDriver"));
+                redirectActivity();
+            }
+
         }
 
         ParseAnalytics.trackAppOpenedInBackground(getIntent());
