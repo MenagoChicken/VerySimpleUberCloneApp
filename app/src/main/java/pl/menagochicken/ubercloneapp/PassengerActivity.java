@@ -1,10 +1,5 @@
 package pl.menagochicken.ubercloneapp;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -14,6 +9,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +18,17 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 public class PassengerActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -30,10 +38,41 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
     LocationListener locationListener;
 
-    public void callUber(View view){
+    Button callUberButton;
+
+    Boolean requestActive = false;
+
+    public void callUber(View view) {
 
         Log.i("Info", "Call Uber");
 
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            Location lastKnownUserLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            if (lastKnownUserLocation != null) {
+
+                ParseObject request = new ParseObject("request");
+                request.put("username", ParseUser.getCurrentUser().getUsername());
+
+                ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lastKnownUserLocation.getLatitude(), lastKnownUserLocation.getLongitude());
+                request.put("location", parseGeoPoint);
+
+                request.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+
+                            callUberButton.setText("Cancel Uber");
+
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Could not find location", Toast.LENGTH_SHORT).show();
+            }
+        }
 
     }
 
@@ -41,11 +80,11 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 1){
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, locationListener);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                     Location lastKnownUserLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     updateMap(lastKnownUserLocation);
                 }
@@ -53,7 +92,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         }
     }
 
-    public void updateMap(Location location){
+    public void updateMap(Location location) {
         LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
         mMap.clear();
@@ -69,6 +108,9 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        callUberButton = findViewById(R.id.callUberButton);
+
     }
 
 
@@ -90,7 +132,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-              updateMap(location);
+                updateMap(location);
             }
 
             @Override
@@ -109,13 +151,13 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
             }
         };
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0 , locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             Location lastKnownUserLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-            if (lastKnownUserLocation != null){
+            if (lastKnownUserLocation != null) {
                 updateMap(lastKnownUserLocation);
             }
         }
