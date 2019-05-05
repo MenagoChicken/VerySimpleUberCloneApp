@@ -13,6 +13,7 @@ import com.parse.ParseAnalytics;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,7 +38,16 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Switch value", userType + " " + String.valueOf(whoSwitch.isChecked()));
         }
 
-        redirectActivity();
+        ParseUser.getCurrentUser().saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null){
+                    Log.i("SaveUser", " Save user successful");
+                    redirectActivity();
+                }
+            }
+        });
+
     }
 
     public void switchTextColor(View view) {
@@ -51,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void redirectActivity(){
-        if (ParseUser.getCurrentUser().get("passengerOrDriver")=="passenger"){
+        if (ParseUser.getCurrentUser().get("passengerOrDriver").equals("passenger")){
             Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
             startActivity(intent);
         } else {

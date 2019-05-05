@@ -12,6 +12,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +29,13 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
     LocationManager locationManager;
 
     LocationListener locationListener;
+
+    public void callUber(View view){
+
+        Log.i("Info", "Call Uber");
+
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -48,7 +57,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
         mMap.clear();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 0));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 14));
         mMap.addMarker(new MarkerOptions().position(userLocation).title("Your location"));
     }
 
