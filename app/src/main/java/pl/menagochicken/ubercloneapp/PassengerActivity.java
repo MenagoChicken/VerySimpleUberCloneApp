@@ -18,12 +18,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +35,7 @@ import androidx.fragment.app.FragmentActivity;
 
 public class PassengerActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    //stworzenie zmiennych
     private GoogleMap mMap;
 
     LocationManager locationManager;
@@ -42,39 +46,69 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
     Boolean requestActive = false;
 
+
+    //metoda przycisku call uber
     public void callUber(View view) {
 
         Log.i("Info", "Call Uber");
 
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            Location lastKnownUserLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            if (lastKnownUserLocation != null) {
-
-                ParseObject request = new ParseObject("request");
-                request.put("username", ParseUser.getCurrentUser().getUsername());
-
-                ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lastKnownUserLocation.getLatitude(), lastKnownUserLocation.getLongitude());
-                request.put("location", parseGeoPoint);
-
-                request.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e == null) {
-
-                            callUberButton.setText("Cancel Uber");
+        //jeżeli jest prawda to pobierz z serwera request
+        if (requestActive) {
+            ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("request");
+            query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if (e == null) {
+                        if (objects.size() > 0) {
+                            //usunięcie wszystkich request
+                            for (ParseObject object : objects) {
+                                object.deleteInBackground();
+                            }
+                            requestActive = false;
+                            callUberButton.setText("Call an Uber");
+                            Log.i("Info", "Call Uber - delete request");
 
                         }
                     }
-                });
-            } else {
-                Toast.makeText(this, "Could not find location", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //jeżeli fałsz zapisz nowy request
+        } else {
+
+            //pytanie o lokalizacje
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                Location lastKnownUserLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                //jeśli jest lokacja
+                if (lastKnownUserLocation != null) {
+                    //zapisanie requesta w postaci username i lokacja
+                    ParseObject request = new ParseObject("request");
+                    request.put("username", ParseUser.getCurrentUser().getUsername());
+
+                    ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lastKnownUserLocation.getLatitude(), lastKnownUserLocation.getLongitude());
+                    request.put("location", parseGeoPoint);
+
+                    request.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                //zmiana przycisku
+                                callUberButton.setText("Cancel Uber");
+                                requestActive = true;
+                                Log.i("Info", "Call Uber - saved");
+
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(this, "Could not find location", Toast.LENGTH_LONG).show();
+                }
             }
         }
-
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -111,6 +145,20 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
         callUberButton = findViewById(R.id.callUberButton);
 
+        // pobranie requestów na start i ustawienie odpowiedniego napisu na buttonie
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("request");
+        query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    if (objects.size() > 0) {
+                        requestActive = true;
+                        callUberButton.setText("Cancel Uber");
+                    }
+                }
+            }
+        });
     }
 
 
