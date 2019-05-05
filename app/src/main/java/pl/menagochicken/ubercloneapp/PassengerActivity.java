@@ -2,6 +2,7 @@ package pl.menagochicken.ubercloneapp;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -46,6 +47,13 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
     Boolean requestActive = false;
 
+    public void logOut(View view){
+
+        ParseUser.logOut();
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+
+    }
 
     //metoda przycisku call uber
     public void callUber(View view) {
